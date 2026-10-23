@@ -1,0 +1,26 @@
+{
+  "name": "evaluacion-2-progra-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm install && npm --prefix client install && npm --prefix server install",
+    "dev": "concurrently \"npm run dev --prefix client\" \" npm run dev --prefix server\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eobardThawnetgc/evaluacion-2-progra-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/eobardThawnetgc/evaluacion-2-progra-web/issues"
+  },
+  "homepage": "https://github.com/eobardThawnetgc/evaluacion-2-progra-web#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
