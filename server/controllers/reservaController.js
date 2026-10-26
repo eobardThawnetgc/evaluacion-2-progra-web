@@ -20,9 +20,7 @@ export const agregarAReserva = (req, res) => {
   const { platoID, cantidad } = req.body;
 
   if (!esEnteroPositivo(platoID) || !esEnteroPositivo(cantidad)) {
-    return res
-      .status(400)
-      .json({ mensaje: "platoID y cantidad deben ser numeros enteros positivos" });
+    return res.status(400).json({ mensaje: "platoID y cantidad deben ser numeros enteros positivos" });
   }
 
   const plato = buscarPlato(alimentoId);
@@ -45,7 +43,7 @@ export const agregarAReserva = (req, res) => {
     reserva.itemsReservados.push({ id: alimentoId, cantidad });
   }
 
-  plato.stock -= cantidad; // bloquea el stock
+  plato.stock -= cantidad; // bloquea el stock o lo retiene
 
   res.status(201).json({
     mensaje: "Platillo añadido a la reserva",
@@ -59,9 +57,7 @@ export const actualizarPorciones = (req, res) => {
   const { cantidad } = req.body;
 
   if (!esEnteroPositivo(cantidad)) {
-    return res
-      .status(400)
-      .json({ mensaje: "La cantidad debe ser un entero mayor a 0" });
+    return res.status(400).json({ mensaje: "La cantidad debe ser un entero mayor a 0" });
   }
 
   const item = buscarItemReservado(id);
@@ -81,7 +77,7 @@ export const actualizarPorciones = (req, res) => {
     }
   }
 
-  plato.stock -= diferencia; // si baja, devuelve unidades; si sube, las descuenta
+  plato.stock -= diferencia; // si baja, devuelve la diferencia y si sube, las descuenta
   item.cantidad = cantidad;
 
   res.status(200).json({
@@ -100,7 +96,7 @@ export const eliminarDeReserva = (req, res) => {
   }
 
   const plato = buscarPlato(id);
-  plato.stock += item.cantidad; // devuelve las unidades al menú
+  plato.stock += item.cantidad; // devuelve las unidades o platos al menu de regreso
 
   reserva.itemsReservados = reserva.itemsReservados.filter((i) => i.id !== id);
 
