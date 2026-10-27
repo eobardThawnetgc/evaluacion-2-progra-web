@@ -39,7 +39,6 @@ const GameForm = () => {
       })
 
       const data = await response.json();
-      console.log(data);
       setMessage(data.message);
       addTry(number, data.result);
       setNumber("");
@@ -59,7 +58,6 @@ const GameForm = () => {
       })
 
       const data = await response.json();
-      console.log(data);
       setMessage(data.message);
       cleanTries();
     } catch (error) {
