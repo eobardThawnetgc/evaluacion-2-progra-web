@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './MenuRestaurante.css'; // Importación del CSS
+import { useToastStore } from '../../store/useToast.js';
 
 const MenuCatalog = () => {
+
+  const showToast = useToastStore(
+    (state) => state.showToast
+  );
+
   const [platos, setPlatos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -9,12 +15,13 @@ const MenuCatalog = () => {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/menu'); 
+        const response = await fetch('http://localhost:3000/api/menu');
         if (!response.ok) throw new Error('Error al obtener el catálogo');
         const data = await response.json();
         setPlatos(data);
       } catch (err) {
         setError(err.message);
+        console.log(err)
       } finally {
         setLoading(false);
       }
@@ -22,17 +29,26 @@ const MenuCatalog = () => {
     fetchMenu();
   }, []);
 
-const handleAddPlato = async (platoId) => {
+  const handleAddPlato = async (platoId) => {
     try {
       const response = await fetch('http://localhost:3000/api/reserva/agregar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ platoID: platoId, cantidad: 1 }), // O aseguramos que mande platoID
       });
-      if (!response.ok) throw new Error('Error al añadir plato');
-      alert('Plato añadido exitosamente');
+      
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.mensaje);
+      showToast(
+        "success",
+        data.mensaje
+      );
     } catch (err) {
-      alert('Hubo un problema al añadir el plato');
+      showToast(
+        "error",
+        err.message
+      );
     }
   };
 
@@ -49,7 +65,7 @@ const handleAddPlato = async (platoId) => {
             <p><strong>Categoría:</strong> {plato.categoria}</p>
             <p><strong>Precio:</strong> ${plato.precio}</p>
             <p><strong>Stock disponible:</strong> {plato.stock}</p>
-            
+
             <button
               className="btn-add"
               onClick={() => handleAddPlato(plato.id)}

@@ -1,0 +1,13 @@
+/* css para el toast */
+.toast-container-custom {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  width: min(360px, calc(100vw - 32px));
+}
+
+.toast-container-custom .toast {
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
