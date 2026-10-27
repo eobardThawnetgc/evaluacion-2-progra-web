@@ -1,3 +1,7 @@
+import { useState } from "react";
+
+import { useGuessNumberStore } from "../../../store/useGuessName";
+
 import {
   Card,
   CardBody,
@@ -5,31 +9,76 @@ import {
   FormGroup,
   Label,
   Input,
-  Button,
-  Badge
+  Button
 } from "reactstrap";
 
 const GameForm = () => {
+
+  const [number, setNumber] = useState("");
+  const [message, setMessage] = useState("¿Podrás descubrir el número secreto?");
+
+  const addTry = useGuessNumberStore(
+    (state) => state.addNumber
+  );
+
+  const cleanTries = useGuessNumberStore(
+    (state) => state.cleanHistory
+  );
+
+  const sendNumber = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:3000/guessNumber", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          number: number
+        })
+      })
+
+      const data = await response.json();
+      console.log(data);
+      setMessage(data.message);
+      addTry(number, data.result);
+      setNumber("");
+    } catch (error) {
+      console.log("Hubo un errr en el servidor: ", error);
+    }
+  }
+
+  const reset = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:3000/guessNumber/reset", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+
+      const data = await response.json();
+      console.log(data);
+      setMessage(data.message);
+      cleanTries();
+    } catch (error) {
+      console.log("Hubo un errr en el servidor: ", error);
+    }
+  }
+
   return (
     <Card className="border-0 shadow-sm rounded-4 h-100">
       <CardBody className="p-4 p-md-5">
         <div className="d-flex align-items-center gap-3 mb-4">
-          <div className="bg-primary bg-opacity-10 text-primary rounded-3 p-3 fw-bold">
-            01
-          </div>
-
           <div>
             <h2 className="h4 fw-bold mb-1">
-              Tu próximo intento
+              {message}
             </h2>
-
-            <p className="text-secondary small mb-0">
-              Elegí un número del 1 al 100.
-            </p>
           </div>
         </div>
 
-        <Form>
+        <Form onSubmit={sendNumber}>
           <FormGroup className="mb-4">
             <Label for="guessNumber" className="fw-semibold">
               Tu número
@@ -41,37 +90,41 @@ const GameForm = () => {
               type="number"
               min="1"
               max="100"
-              placeholder="Escribí tu número..."
+              placeholder="Escribe tu número..."
               className="py-3"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
             />
 
             <p className="text-secondary small mt-2 mb-0">
-              Introducí un número entero entre 1 y 100.
+              Introduce un número entero entre 1 y 100.
             </p>
           </FormGroup>
 
-          <Button
-            type="button"
-            color="primary"
-            size="lg"
-            block
-            className="rounded-3 fw-semibold"
-          >
-            Adivinar número →
-          </Button>
+          <div className="d-flex flex-column gap-3">
+            <Button
+              type="submit"
+              color="primary"
+              size="lg"
+              className="rounded-3 fw-semibold flex-grow-1"
+            >
+              Adivinar número
+            </Button>
+
+            <Button
+              type="button"
+              color="secondary"
+              outline
+              size="lg"
+              className="rounded-3 fw-semibold flex-grow-1"
+              onClick={reset}
+            >
+              Reiniciar
+            </Button>
+          </div>
         </Form>
 
         <hr className="my-4" />
-
-        <div className="d-flex justify-content-between align-items-center">
-          <span className="text-secondary small">
-            Rango permitido
-          </span>
-
-          <Badge color="light" className="text-primary px-3 py-2">
-            01 — 100
-          </Badge>
-        </div>
       </CardBody>
     </Card>
   );

@@ -22,13 +22,22 @@ export const verifySecretNumber = (req, res) => {
     const isEqual = secretNumber === parsedNumber;
     const isLower = parsedNumber < secretNumber;
 
-    if (isEqual) return res.status(200).json({ message: "Adivinaste el número secreto" })
+    if (isEqual) return res.status(200).json({ 
+        message: "Adivinaste el número secreto",
+        result: "correcto"
+    })
 
     if (isLower) {
-        return res.status(200).json({ message: "El número ingresado es menor que el número secreto" });
+        return res.status(200).json({
+             message: "El número ingresado es menor que el número secreto",
+             result: "menor"
+            });
     }
 
-    return res.status(200).json({ message: "El número ingresado es mayor que el número secreto" });
+    return res.status(200).json({
+         message: "El número ingresado es mayor que el número secreto",
+         result: "mayor"
+        });
 }
 
 export const resetSecretNumber = (req, res) => {

@@ -1,5 +1,7 @@
 import { Container, Row, Col } from "reactstrap";
 
+import { useState } from "react";
+
 import GameHeader from "./components/GameHeader";
 import GameForm from "./components/Form";
 import GuessHistory from "./components/GuessHistory";
