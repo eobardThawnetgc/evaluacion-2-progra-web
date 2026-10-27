@@ -7,7 +7,10 @@ import {
   agregarAReserva,
   actualizarPorciones,
   eliminarDeReserva,
+  confirmarReserva,
 } from "./controllers/reservaController.js";
+import { liberarSiExpiro } from "./data/store.js";
+
 
 const router = express.Router();
 
@@ -16,11 +19,17 @@ router.post("/guessNumber", verifySecretNumber);
 router.post("/guessNumber/reset", resetSecretNumber);
 
 //endpoints para el ejercicio 2
+router.use("/api", (req, res, next) => {
+  liberarSiExpiro();
+  next();
+});
 
 router.get("/api/menu", obtenerMenu);
 router.get("/api/reserva", obtenerReserva);
 router.post("/api/reserva/agregar", agregarAReserva);
 router.put("/api/reserva/actualizar-porciones/:id", actualizarPorciones);
 router.delete("/api/reserva/eliminar/:id", eliminarDeReserva);
+router.post("/api/reserva/confirmar", confirmarReserva);
+
 
 export default router;
