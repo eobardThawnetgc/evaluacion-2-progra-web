@@ -16,6 +16,7 @@ router.post("/guessNumber", verifySecretNumber);
 router.post("/guessNumber/reset", resetSecretNumber);
 
 //endpoints para el ejercicio 2
+
 router.get("/api/menu", obtenerMenu);
 router.get("/api/reserva", obtenerReserva);
 router.post("/api/reserva/agregar", agregarAReserva);

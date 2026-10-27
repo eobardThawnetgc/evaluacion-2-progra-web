@@ -7,7 +7,7 @@ import {
   obtenerResumenReserva,
 } from "../data/store.js";
 
-//Funcion para poder verificar si es un tipo int y mayo a 0
+// Función para poder verificar si es un tipo int y mayor a 0
 const esEnteroPositivo = (valor) => Number.isInteger(valor) && valor > 0;
 
 // GET /api/reserva
@@ -15,9 +15,11 @@ export const obtenerReserva = (req, res) => {
   res.status(200).json(obtenerResumenReserva());
 };
 
-// POST /api/reserva/agregar  { platoID, cantidad }
+// POST /api/reserva/agregar   { platoID, cantidad }
 export const agregarAReserva = (req, res) => {
-  const { platoID, cantidad } = req.body;
+  // Acepta cualquier variante que mande el frontend para mayor compatibilidad
+  const platoID = Number(req.body.platoID || req.body.platoId || req.body.id);
+  const cantidad = Number(req.body.cantidad || 1);
 
   if (!esEnteroPositivo(platoID) || !esEnteroPositivo(cantidad)) {
     return res.status(400).json({ mensaje: "platoID y cantidad deben ser numeros enteros positivos" });
@@ -36,11 +38,11 @@ export const agregarAReserva = (req, res) => {
     return res.status(400).json({ mensaje: "Saldo insuficiente para esta cantidad" });
   }
 
-  const itemExistente = buscarItemReservado(alimentoId);
+  const itemExistente = buscarItemReservado(platoID);
   if (itemExistente) {
     itemExistente.cantidad += cantidad;
   } else {
-    reserva.itemsReservados.push({ id: alimentoId, cantidad });
+    reserva.itemsReservados.push({ id: platoID, cantidad });
   }
 
   plato.stock -= cantidad; // bloquea el stock o lo retiene
@@ -51,7 +53,7 @@ export const agregarAReserva = (req, res) => {
   });
 };
 
-// PUT /api/reserva/actualizar-porciones/:id  { cantidad }
+// PUT /api/reserva/actualizar-porciones/:id   { cantidad }
 export const actualizarPorciones = (req, res) => {
   const id = Number(req.params.id);
   const { cantidad } = req.body;

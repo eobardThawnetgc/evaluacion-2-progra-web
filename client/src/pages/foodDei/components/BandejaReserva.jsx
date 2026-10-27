@@ -1,23 +1,22 @@
-import { useState, useEffect } from "react";
-import { Card, CardBody, CardTitle, ListGroup, ListGroupItem, ButtonGroup, Button, UncontrolledAlert } from "reactstrap";
+import React, { useState, useEffect } from 'react';
+import './BandejaReserva.css'; 
 
 const BandejaReserva = () => {
-  const [resumen, setResumen] = useState(null);
+  const [reserva, setReserva] = useState({ itemsReservados: [], saldo: 0 });
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Función para obtener el estado actual de la reserva desde el backend
   const fetchReserva = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/reserva");
+      const response = await fetch('http://localhost:3000/api/reserva');
+      if (!response.ok) throw new Error('Error al obtener la bandeja de reserva');
       const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.mensaje || "Error al obtener la reserva");
-      }
-      
-      setResumen(data);
-      setError(null);
+      setReserva(data);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -25,158 +24,99 @@ const BandejaReserva = () => {
     fetchReserva();
   }, []);
 
+  // Función para actualizar porciones (Aumentar o Disminuir cantidad)
   const actualizarCantidad = async (id, nuevaCantidad) => {
     if (nuevaCantidad < 1) return;
 
     try {
       const response = await fetch(`http://localhost:3000/api/reserva/actualizar-porciones/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cantidad: nuevaCantidad }), 
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cantidad: nuevaCantidad }),
       });
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.mensaje || 'Error al actualizar las porciones');
 
-      if (!response.ok) {
-        throw new Error(data.mensaje || "Error al actualizar las porciones");
-      }
-
-      fetchReserva(); 
-      setError(null);
+      // Refrescamos los datos de la reserva
+      fetchReserva();
     } catch (err) {
-      setError(err.message); 
+      alert(err.message);
     }
   };
 
+  // Función para eliminar un plato de la reserva
   const eliminarPlato = async (id) => {
     try {
       const response = await fetch(`http://localhost:3000/api/reserva/eliminar/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.mensaje || 'Error al eliminar el platillo');
 
-      if (!response.ok) {
-        throw new Error(data.mensaje || "Error al eliminar el platillo");
-      }
-
+      // Refrescamos los datos de la reserva
       fetchReserva();
-      setError(null);
     } catch (err) {
-      setError(err.message);
+      alert(err.message);
     }
   };
 
-  const items = resumen?.itemsReservados || [];
+  if (loading) return <p>Cargando bandeja de reserva...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
-    <Card 
-      style={{
-        border: '1px solid #EEF0F3',
-        borderRadius: '20px',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-        fontFamily: 'Segoe UI, sans-serif',
-        overflow: 'hidden'
-      }}
-    >
-      <CardBody className="p-4 p-lg-5">
-        
-        {/* Título de la bandeja con el estilo del número "02" */}
-        <CardTitle 
-          tag="h4" 
-          style={{
-            fontWeight: 750,
-            color: '#212529',
-            marginBottom: '25px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}
-        >
-          <span
-            style={{
-              fontSize: '14px',
-              fontWeight: 700,
-              color: '#198754',
-              backgroundColor: '#E5F6EC',
-              padding: '8px 12px',
-              borderRadius: '9px',
-            }}
-          >
-            🛒
-          </span>
-          Bandeja de Reserva
-        </CardTitle>
+    <div className="bandeja-container">
+      <h2>Mi Bandeja de Reserva</h2>
+      <div className="reserva-info">
+        <p><strong>Saldo disponible:</strong> ${reserva.saldo}</p>
+        <p><strong>Total gastado:</strong> ${reserva.total || 0}</p>
+      </div>
 
-        {error && (
-          <UncontrolledAlert color="warning" style={{ borderRadius: '10px' }}>
-            {error}
-          </UncontrolledAlert>
-        )}
+      {reserva.itemsReservados.length === 0 ? (
+        <p>Tu bandeja está vacía.</p>
+      ) : (
+        <div className="items-list">
+          {reserva.itemsReservados.map((item) => (
+            <div key={item.id} className="item-card">
+              <div>
+                <h4>{item.nombre || `Plato ID: ${item.id}`}</h4>
+                <p>Cantidad: {item.cantidad}</p>
+                <p>Precio unitario: ${item.precio}</p>
+              </div>
 
-        <ListGroup flush>
-          {items.length === 0 ? (
-            <ListGroupItem className="text-center text-secondary border-0 py-4" style={{ fontSize: '15px' }}>
-              Tu bandeja está vacía.
-            </ListGroupItem>
-          ) : (
-            items.map((item) => (
-              <ListGroupItem key={item.id} className="d-flex justify-content-between align-items-center px-0 py-3 border-bottom">
-                <div>
-                  <strong style={{ color: '#212529', fontSize: '15px' }}>{item.nombre || `Platillo #${item.id}`}</strong>
-                  <br/>
-                  <small className="text-secondary" style={{ fontSize: '13px' }}>Porciones: {item.cantidad}</small>
-                </div>
-                
-                <div className="d-flex align-items-center gap-2">
-                  <ButtonGroup size="sm">
-                    <Button 
-                      color="secondary" 
-                      outline
-                      onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
-                      disabled={item.cantidad <= 1}
-                    >
-                      -
-                    </Button>
-                    <Button disabled color="light" className="text-dark fw-bold border-secondary">
-                      {item.cantidad}
-                    </Button>
-                    <Button 
-                      color="secondary" 
-                      outline
-                      onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
-                    >
-                      +
-                    </Button>
-                  </ButtonGroup>
+              <div className="acciones-botones">
+                {/* Botón para disminuir porciones */}
+                <button 
+                  onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
+                  className="btn-cantidad"
+                >
+                  -
+                </button>
 
-                  <Button 
-                    color="danger" 
-                    outline 
-                    size="sm"
-                    style={{ borderRadius: '6px' }}
-                    onClick={() => eliminarPlato(item.id)}
-                  >
-                    Quitar
-                  </Button>
-                </div>
-              </ListGroupItem>
-            ))
-          )}
-        </ListGroup>
+                <span>{item.cantidad}</span>
 
-        {resumen && (
-          <div className="mt-4 pt-4 text-end" style={{ borderTop: '2px dashed #EEF0F3' }}>
-             <h6 className="mb-2 text-secondary" style={{ fontSize: '15px' }}>
-               Saldo restante: <span style={{ color: '#212529', fontWeight: 650 }}>${resumen.saldo?.toFixed(2) || "0.00"}</span>
-             </h6>
-             <h5 className="mb-0 fw-bold" style={{ color: '#198754', fontSize: '24px' }}>
-               Total: ${resumen.total?.toFixed(2) || "0.00"}
-             </h5>
-          </div>
-        )}
-      </CardBody>
-    </Card>
+                {/* Botón para aumentar porciones */}
+                <button 
+                  onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
+                  className="btn-cantidad"
+                >
+                  +
+                </button>
+
+                {/* Botón para eliminar el plato por completo */}
+                <button 
+                  onClick={() => eliminarPlato(item.id)}
+                  className="btn-eliminar"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -9,7 +9,6 @@ const MenuCatalog = () => {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        // Recuerda cambiar el puerto al correcto de tu servidor Express
         const response = await fetch('http://localhost:3000/api/menu'); 
         if (!response.ok) throw new Error('Error al obtener el catálogo');
         const data = await response.json();
@@ -23,12 +22,12 @@ const MenuCatalog = () => {
     fetchMenu();
   }, []);
 
-  const handleAddPlato = async (platoId) => {
+const handleAddPlato = async (platoId) => {
     try {
-      const response = await fetch('http://localhost:3000/api/reserva', {
+      const response = await fetch('http://localhost:3000/api/reserva/agregar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platoId, cantidad: 1 }),
+        body: JSON.stringify({ platoID: platoId, cantidad: 1 }), // O aseguramos que mande platoID
       });
       if (!response.ok) throw new Error('Error al añadir plato');
       alert('Plato añadido exitosamente');
