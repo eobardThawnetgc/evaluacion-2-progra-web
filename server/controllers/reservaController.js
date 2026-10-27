@@ -23,7 +23,7 @@ export const agregarAReserva = (req, res) => {
     return res.status(400).json({ mensaje: "platoID y cantidad deben ser numeros enteros positivos" });
   }
 
-  const plato = buscarPlato(alimentoId);
+  const plato = buscarPlato(platoID);
   if (!plato) {
     return res.status(404).json({ mensaje: "El platillo no existe" });
   }
