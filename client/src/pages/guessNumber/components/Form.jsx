@@ -28,6 +28,10 @@ const GameForm = () => {
   const sendNumber = async (e) => {
     e.preventDefault();
     try {
+      if (number === "") {
+        setMessage("Debes ingresar un número");
+        return;
+      }
       const response = await fetch("http://localhost:3000/guessNumber", {
         method: "POST",
         headers: {
@@ -61,7 +65,7 @@ const GameForm = () => {
       setMessage(data.message);
       cleanTries();
     } catch (error) {
-      console.log("Hubo un errr en el servidor: ", error);
+      console.log("Hubo un error en el servidor: ", error);
     }
   }
 
