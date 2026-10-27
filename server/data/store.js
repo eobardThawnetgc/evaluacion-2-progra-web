@@ -13,9 +13,12 @@ export const menu = [
   { id: 108, nombre: "Lasaña de Carne", precio: 6.0, stock: 0, categoria: "Fuerte" },
 ];
 
+export const tiempoLimite = 180; //Tiempo en segundos
+
 export const reserva = {
   saldo: 25.0, //El dinero actual por default esta a $25
   itemsReservados: [], // [{ id: 101, cantidad: 2 }]
+  expiraEn: null, //Usare timestamp
 };
 
 const redondear = (valor) => 
@@ -36,8 +39,38 @@ export const calcularTotal = () => {
   return redondear(total);
 };
 
+
 export const obtenerResumenReserva = () => ({
   saldo: reserva.saldo,
-  itemsReservados: reserva.itemsReservados,
+  itemsReservados: reserva.itemsReservados.map((item) => {
+    const plato = buscarPlato(item.id);
+    return {
+      id: item.id,
+      cantidad: item.cantidad,
+      nombre: plato.nombre,
+      precio: plato.precio,
+    };
+  }),
   total: calcularTotal(),
+  segundosRestantes: reserva.expiraEn === null ? null : Math.max(0, Math.ceil((reserva.expiraEn - Date.now()) / 1000)),
 });
+
+//Iniciara cuando se agregue el primer plato
+export const iniciarTemporizador = () => {
+  if (reserva.expiraEn === null) {
+    reserva.expiraEn = Date.now() + tiempoLimite * 1000;
+  }
+};
+
+//Si se acaba el tiempo, cada plato regresa al menu y vacia la reservacion
+export const liberarSiExpiro = () => {
+  if (reserva.expiraEn === null || Date.now() < reserva.expiraEn) return false;
+
+  //Volver a los valores predeterminados
+  reserva.itemsReservados.forEach((item) => {
+    buscarPlato(item.id).stock += item.cantidad;
+  });
+  reserva.itemsReservados = [];
+  reserva.expiraEn = null;
+  return true;
+};

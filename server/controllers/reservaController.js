@@ -5,6 +5,8 @@ import {
   buscarItemReservado,
   calcularTotal,
   obtenerResumenReserva,
+  iniciarTemporizador,
+  redondear,
 } from "../data/store.js";
 
 // Función para poder verificar si es un tipo int y mayor a 0
@@ -18,7 +20,7 @@ export const obtenerReserva = (req, res) => {
 // POST /api/reserva/agregar   { platoID, cantidad }
 export const agregarAReserva = (req, res) => {
   // Acepta cualquier variante que mande el frontend para mayor compatibilidad
-  const platoID = Number(req.body.platoID || req.body.platoId || req.body.id);
+  const platoID = Number(req.body.platoID || req.body.platoId || req.body.id || req.alimentoId);
   const cantidad = Number(req.body.cantidad || 1);
 
   if (!esEnteroPositivo(platoID) || !esEnteroPositivo(cantidad)) {
@@ -45,6 +47,7 @@ export const agregarAReserva = (req, res) => {
     reserva.itemsReservados.push({ id: platoID, cantidad });
   }
 
+  iniciarTemporizador();
   plato.stock -= cantidad; // bloquea el stock o lo retiene
 
   res.status(201).json({
@@ -101,9 +104,27 @@ export const eliminarDeReserva = (req, res) => {
   plato.stock += item.cantidad; // devuelve las unidades o platos al menu de regreso
 
   reserva.itemsReservados = reserva.itemsReservados.filter((i) => i.id !== id);
+  if (reserva.itemsReservados.length === 0) reserva.expiraEn = null;
 
   res.status(200).json({
     mensaje: "Platillo eliminado de la reserva",
+    reserva: obtenerResumenReserva(),
+  });
+};
+
+// POST /api/reserva/confirmar
+export const confirmarReserva = (req, res) => {
+  if (reserva.itemsReservados.length === 0) {
+    return res.status(400).json({ mensaje: "Tu reserva esta vacia" });
+  }
+
+  //Volver a el saldo original o el resultante si aun hay platos
+  reserva.saldo = redondear(reserva.saldo - calcularTotal());
+  reserva.itemsReservados = [];
+  reserva.expiraEn = null;
+
+  res.status(200).json({
+    mensaje: "Reserva confirmada.",
     reserva: obtenerResumenReserva(),
   });
 };
