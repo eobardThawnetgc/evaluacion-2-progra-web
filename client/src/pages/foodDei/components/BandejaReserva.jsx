@@ -1,66 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Card, CardBody, Button, Spinner, Alert } from 'reactstrap';
+import { useReservaStore } from '../../../store/reservaStore.js';
 
 const BandejaReserva = () => {
-  const [reserva, setReserva] = useState({ itemsReservados: [], saldo: 0 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
   const navigate = useNavigate();
-
-  const fetchReserva = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/api/reserva');
-      if (!response.ok) throw new Error('Error al obtener la bandeja de reserva');
-      const data = await response.json();
-      setReserva(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  
+  // Extraemos datos y funciones desde Zustand
+  const { 
+    reserva, 
+    loadingReserva, 
+    error, 
+    fetchReserva, 
+    actualizarCantidad, 
+    eliminarPlato 
+  } = useReservaStore();
 
   useEffect(() => {
     fetchReserva();
-  }, []);
+  }, [fetchReserva]);
 
-  const actualizarCantidad = async (id, nuevaCantidad) => {
-    if (nuevaCantidad < 1) return;
-
-    try {
-      const response = await fetch(`http://localhost:3000/api/reserva/actualizar-porciones/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cantidad: nuevaCantidad }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.mensaje || 'Error al actualizar las porciones');
-
-      fetchReserva();
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  const eliminarPlato = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/reserva/eliminar/${id}`, {
-        method: 'DELETE',
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.mensaje || 'Error al eliminar el platillo');
-
-      fetchReserva();
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  if (loading) return <Container className="mt-5 text-center"><Spinner color="primary" /> <p>Cargando bandeja de reserva...</p></Container>;
+  if (loadingReserva) return <Container className="mt-5 text-center"><Spinner color="primary" /> <p>Cargando bandeja de reserva...</p></Container>;
   if (error) return <Container className="mt-5"><Alert color="danger">Error: {error}</Alert></Container>;
 
   return (
@@ -73,8 +33,8 @@ const BandejaReserva = () => {
       </div>
 
       <div className="d-flex justify-content-around bg-light p-3 rounded mb-4 border shadow-sm">
-        <span className="fs-5"><strong>Saldo disponible:</strong> ${reserva.saldo}</span>
-        <span className="fs-5"><strong>Total gastado:</strong> ${reserva.total || 0}</span>
+        <span className="fs-5"><strong>Saldo disponible:</strong> ${reserva.saldo?.toFixed(2) || "0.00"}</span>
+        <span className="fs-5"><strong>Total gastado:</strong> ${reserva.total?.toFixed(2) || "0.00"}</span>
       </div>
 
       {reserva.itemsReservados.length === 0 ? (
@@ -97,6 +57,7 @@ const BandejaReserva = () => {
                     style={{ width: '36px', height: '36px', padding: 0 }}
                     className="fw-bold fs-5 d-flex justify-content-center align-items-center"
                     onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
+                    disabled={item.cantidad <= 1}
                   >
                     -
                   </Button>

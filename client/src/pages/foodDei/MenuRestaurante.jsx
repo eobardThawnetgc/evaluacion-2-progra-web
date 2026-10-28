@@ -1,51 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, CardImg, CardBody, CardTitle, CardText, Button } from 'reactstrap';
-import { useToastStore } from '../../store/useToast.js';
+import { useToastStore } from "../../store/useToast.js";
+import { useReservaStore } from "../../store/reservaStore.js";
 
 const MenuCatalog = () => {
   const showToast = useToastStore((state) => state.showToast);
   const navigate = useNavigate();
 
-  const [platos, setPlatos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Extraemos datos y funciones desde Zustand
+  const { platos, loadingMenu, error, fetchMenu, agregarPlato } = useReservaStore();
 
   useEffect(() => {
-    const fetchMenu = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/api/menu');
-        if (!response.ok) throw new Error('Error al obtener el catálogo');
-        const data = await response.json();
-        setPlatos(data);
-      } catch (err) {
-        setError(err.message);
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchMenu();
-  }, []);
+  }, [fetchMenu]);
 
   const handleAddPlato = async (platoId) => {
-    try {
-      const response = await fetch('http://localhost:3000/api/reserva/agregar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platoID: platoId, cantidad: 1 }), 
-      });
-      
-      const data = await response.json();
-
-      if (!response.ok) throw new Error(data.mensaje);
-      showToast("success", data.mensaje);
-    } catch (err) {
-      showToast("error", err.message);
+    const result = await agregarPlato(platoId);
+    if (result.success) {
+      showToast("success", result.mensaje);
+    } else {
+      showToast("error", result.mensaje);
     }
   };
 
-  if (loading) return <Container className="mt-5"><p>Cargando menú...</p></Container>;
+  if (loadingMenu) return <Container className="mt-5"><p>Cargando menú...</p></Container>;
   if (error) return <Container className="mt-5"><p className="text-danger">Error: {error}</p></Container>;
 
   return (
