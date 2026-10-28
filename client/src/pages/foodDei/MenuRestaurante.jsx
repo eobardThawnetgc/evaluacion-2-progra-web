@@ -34,7 +34,7 @@ const MenuCatalog = () => {
       <NavBar />
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Catálogo del Menú</h2>
-        <Button color="primary" onClick={() => navigate('/reserva')}>
+        <Button color="primary" onClick={() => navigate('/food-dei/reserva')}>
           Ver Bandeja de Reserva
         </Button>
       </div>

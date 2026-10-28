@@ -12,10 +12,9 @@ const AppRouter = () => {
             
             <Route path="/guessNumber" element={<GuessNumber />} />
             <Route path="/food-dei" element={<MenuRestaurante />} />
-            <Route path="/reserva" element={<BandejaReserva />} />
+            <Route path="food-dei/reserva" element={<BandejaReserva />} />
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="*" element={<Navigate to="/home" replace />} />
-            <Route path="/food-dei/reserva" element={<BandejaReserva />} />
         </Routes>
     )
 }
