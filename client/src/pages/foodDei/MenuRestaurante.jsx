@@ -10,10 +10,11 @@ const MenuCatalog = () => {
   const navigate = useNavigate();
 
   // Extraemos datos y funciones desde Zustand
-  const { platos, loadingMenu, error, fetchMenu, agregarPlato } = useReservaStore();
+  const { platos, loadingMenu, error, fetchMenu, agregarPlato, fetchReserva } = useReservaStore();
 
   useEffect(() => {
     fetchMenu();
+    fetchReserva()
   }, [fetchMenu]);
 
   const handleAddPlato = async (platoId) => {

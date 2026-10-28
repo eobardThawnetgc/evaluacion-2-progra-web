@@ -22,6 +22,8 @@ export const useReservaStore = create((set, get) => ({
 
   // 2. Obtener bandeja
   fetchReserva: async () => {
+    console.log("Ejecutando fetchReserva");
+
     set({ loadingReserva: true, error: null });
     try {
       const response = await fetch('http://localhost:3000/api/reserva');
@@ -39,16 +41,16 @@ export const useReservaStore = create((set, get) => ({
       const response = await fetch('http://localhost:3000/api/reserva/agregar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platoID, cantidad: 1 }), 
+        body: JSON.stringify({ platoID, cantidad: 1 }),
       });
-      
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.mensaje);
-      
+
       // Magia de Zustand: Refrescamos menú y bandeja al instante
       await get().fetchMenu();
       await get().fetchReserva();
-      
+
       return { success: true, mensaje: data.mensaje };
     } catch (err) {
       return { success: false, mensaje: err.message };
