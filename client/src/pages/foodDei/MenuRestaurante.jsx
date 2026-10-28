@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, CardImg, CardBody, CardTitle, CardText, Button } from 'reactstrap';
 import { useToastStore } from "../../store/useToast.js";
 import { useReservaStore } from "../../store/reservaStore.js";
+import NavBar from './components/NavBar.jsx';
 
 const MenuCatalog = () => {
   const showToast = useToastStore((state) => state.showToast);
@@ -29,6 +30,7 @@ const MenuCatalog = () => {
 
   return (
     <Container className="my-5">
+      <NavBar />
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Catálogo del Menú</h2>
         <Button color="primary" onClick={() => navigate('/reserva')}>
