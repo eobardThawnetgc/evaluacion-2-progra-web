@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import './BandejaReserva.css'; 
+import { useNavigate } from 'react-router-dom';
+import { Container, Card, CardBody, Button, Spinner, Alert } from 'reactstrap';
 
 const BandejaReserva = () => {
   const [reserva, setReserva] = useState({ itemsReservados: [], saldo: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const navigate = useNavigate();
 
-  // Función para obtener el estado actual de la reserva desde el backend
   const fetchReserva = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/reserva');
@@ -24,7 +26,6 @@ const BandejaReserva = () => {
     fetchReserva();
   }, []);
 
-  // Función para actualizar porciones (Aumentar o Disminuir cantidad)
   const actualizarCantidad = async (id, nuevaCantidad) => {
     if (nuevaCantidad < 1) return;
 
@@ -38,14 +39,12 @@ const BandejaReserva = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.mensaje || 'Error al actualizar las porciones');
 
-      // Refrescamos los datos de la reserva
       fetchReserva();
     } catch (err) {
       alert(err.message);
     }
   };
 
-  // Función para eliminar un plato de la reserva
   const eliminarPlato = async (id) => {
     try {
       const response = await fetch(`http://localhost:3000/api/reserva/eliminar/${id}`, {
@@ -55,68 +54,80 @@ const BandejaReserva = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.mensaje || 'Error al eliminar el platillo');
 
-      // Refrescamos los datos de la reserva
       fetchReserva();
     } catch (err) {
       alert(err.message);
     }
   };
 
-  if (loading) return <p>Cargando bandeja de reserva...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading) return <Container className="mt-5 text-center"><Spinner color="primary" /> <p>Cargando bandeja de reserva...</p></Container>;
+  if (error) return <Container className="mt-5"><Alert color="danger">Error: {error}</Alert></Container>;
 
   return (
-    <div className="bandeja-container">
-      <h2>Mi Bandeja de Reserva</h2>
-      <div className="reserva-info">
-        <p><strong>Saldo disponible:</strong> ${reserva.saldo}</p>
-        <p><strong>Total gastado:</strong> ${reserva.total || 0}</p>
+    <Container className="my-5" style={{ maxWidth: '800px' }}>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0 fw-bold">Mi Bandeja de Reserva</h2>
+        <Button color="secondary" className="fw-bold" onClick={() => navigate('/food-dei')}>
+          Regresar a ordenar
+        </Button>
+      </div>
+
+      <div className="d-flex justify-content-around bg-light p-3 rounded mb-4 border shadow-sm">
+        <span className="fs-5"><strong>Saldo disponible:</strong> ${reserva.saldo}</span>
+        <span className="fs-5"><strong>Total gastado:</strong> ${reserva.total || 0}</span>
       </div>
 
       {reserva.itemsReservados.length === 0 ? (
-        <p>Tu bandeja está vacía.</p>
+        <Alert color="info" className="text-center fw-bold">Tu bandeja está vacía.</Alert>
       ) : (
-        <div className="items-list">
+        <div className="d-flex flex-column gap-3">
           {reserva.itemsReservados.map((item) => (
-            <div key={item.id} className="item-card">
-              <div>
-                <h4>{item.nombre || `Plato ID: ${item.id}`}</h4>
-                <p>Cantidad: {item.cantidad}</p>
-                <p>Precio unitario: ${item.precio}</p>
-              </div>
+            <Card key={item.id} className="shadow-sm border">
+              <CardBody className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                  <h4 className="mb-1 text-dark">{item.nombre || `Plato ID: ${item.id}`}</h4>
+                  <p className="mb-0 text-muted">
+                    Cantidad: {item.cantidad} | Precio unitario: ${item.precio}
+                  </p>
+                </div>
 
-              <div className="acciones-botones">
-                {/* Botón para disminuir porciones */}
-                <button 
-                  onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
-                  className="btn-cantidad"
-                >
-                  -
-                </button>
+                <div className="d-flex align-items-center gap-2">
+                  <Button 
+                    color="success" 
+                    style={{ width: '36px', height: '36px', padding: 0 }}
+                    className="fw-bold fs-5 d-flex justify-content-center align-items-center"
+                    onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
+                  >
+                    -
+                  </Button>
 
-                <span>{item.cantidad}</span>
+                  <span className="fw-bold fs-5 px-2 text-center" style={{ minWidth: '30px' }}>
+                    {item.cantidad}
+                  </span>
 
-                {/* Botón para aumentar porciones */}
-                <button 
-                  onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
-                  className="btn-cantidad"
-                >
-                  +
-                </button>
+                  <Button 
+                    color="success" 
+                    style={{ width: '36px', height: '36px', padding: 0 }}
+                    className="fw-bold fs-5 d-flex justify-content-center align-items-center"
+                    onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
+                  >
+                    +
+                  </Button>
 
-                {/* Botón para eliminar el plato por completo */}
-                <button 
-                  onClick={() => eliminarPlato(item.id)}
-                  className="btn-eliminar"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </div>
+                  <Button 
+                    color="danger" 
+                    className="fw-bold ms-3"
+                    onClick={() => eliminarPlato(item.id)}
+                  >
+                    Eliminar
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
           ))}
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 
