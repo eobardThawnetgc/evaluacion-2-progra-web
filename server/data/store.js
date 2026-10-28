@@ -3,14 +3,14 @@
 // datos predeterminados.
 
 export const menu = [
-  { id: 101, nombre: "Pollo a la plancha", precio: 5.5, stock: 12, categoria: "Fuerte" },
-  { id: 102, nombre: "Pasta Alfredo", precio: 4.75, stock: 8, categoria: "Fuerte" },
-  { id: 103, nombre: "Ensalada Cesar", precio: 3.25, stock: 10, categoria: "Entrada" },
-  { id: 104, nombre: "Sopa del Dia", precio: 2.5, stock: 15, categoria: "Entrada" },
-  { id: 105, nombre: "Pupusas (3 unidades)", precio: 2.6, stock: 20, categoria: "Fuerte" },
-  { id: 106, nombre: "Pastel de Chocolate", precio: 2.75, stock: 6, categoria: "Postre" },
-  { id: 107, nombre: "Limonada Natural", precio: 1.5, stock: 25, categoria: "Bebida" },
-  { id: 108, nombre: "Lasaña de Carne", precio: 6.0, stock: 0, categoria: "Fuerte" },
+  { id: 101, nombre: "Pollo a la plancha", precio: 5.5, stock: 12, categoria: "Fuerte", imagen: "/img/plato-101.jpg" },
+  { id: 102, nombre: "Pasta Alfredo", precio: 4.75, stock: 8, categoria: "Fuerte", imagen: "/img/plato-102.jpg" },
+  { id: 103, nombre: "Ensalada Cesar", precio: 3.25, stock: 10, categoria: "Entrada", imagen: "/img/plato-103.jpg" },
+  { id: 104, nombre: "Sopa del Dia", precio: 2.5, stock: 15, categoria: "Entrada", imagen: "/img/plato-104.jpg" },
+  { id: 105, nombre: "Pupusas (3 unidades)", precio: 2.6, stock: 20, categoria: "Fuerte", imagen: "/img/plato-105.jpg" },
+  { id: 106, nombre: "Pastel de Chocolate", precio: 2.75, stock: 6, categoria: "Postre", imagen: "/img/plato-106.jpg" },
+  { id: 107, nombre: "Limonada Natural", precio: 1.5, stock: 25, categoria: "Bebida", imagen: "/img/plato-107.jpg" },
+  { id: 108, nombre: "Lasaña de Carne", precio: 6.0, stock: 0, categoria: "Fuerte", imagen: "/img/plato-108.jpg" },
 ];
 
 export const tiempoLimite = 3000; //Tiempo en segundos

@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import './MenuRestaurante.css'; // Importación del CSS
+import { useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, CardImg, CardBody, CardTitle, CardText, Button } from 'reactstrap';
 import { useToastStore } from '../../store/useToast.js';
 
 const MenuCatalog = () => {
-
-  const showToast = useToastStore(
-    (state) => state.showToast
-  );
+  const showToast = useToastStore((state) => state.showToast);
+  const navigate = useNavigate();
 
   const [platos, setPlatos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +20,7 @@ const MenuCatalog = () => {
         setPlatos(data);
       } catch (err) {
         setError(err.message);
-        console.log(err)
+        console.log(err);
       } finally {
         setLoading(false);
       }
@@ -34,49 +33,69 @@ const MenuCatalog = () => {
       const response = await fetch('http://localhost:3000/api/reserva/agregar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platoID: platoId, cantidad: 1 }), // O aseguramos que mande platoID
+        body: JSON.stringify({ platoID: platoId, cantidad: 1 }), 
       });
       
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.mensaje);
-      showToast(
-        "success",
-        data.mensaje
-      );
+      showToast("success", data.mensaje);
     } catch (err) {
-      showToast(
-        "error",
-        err.message
-      );
+      showToast("error", err.message);
     }
   };
 
-  if (loading) return <p>Cargando menú...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading) return <Container className="mt-5"><p>Cargando menú...</p></Container>;
+  if (error) return <Container className="mt-5"><p className="text-danger">Error: {error}</p></Container>;
 
   return (
-    <div className="menu-container">
-      <h2>Catálogo del Menú</h2>
-      <div className="platos-grid">
-        {platos.map((plato) => (
-          <div key={plato.id} className="plato-card">
-            <h3>{plato.nombre}</h3>
-            <p><strong>Categoría:</strong> {plato.categoria}</p>
-            <p><strong>Precio:</strong> ${plato.precio}</p>
-            <p><strong>Stock disponible:</strong> {plato.stock}</p>
-
-            <button
-              className="btn-add"
-              onClick={() => handleAddPlato(plato.id)}
-              disabled={plato.stock <= 0}
-            >
-              {plato.stock > 0 ? 'Añadir a la reserva' : 'Agotado'}
-            </button>
-          </div>
-        ))}
+    <Container className="my-5">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0">Catálogo del Menú</h2>
+        <Button color="primary" onClick={() => navigate('/reserva')}>
+          Ver Bandeja de Reserva
+        </Button>
       </div>
-    </div>
+
+      <Row>
+        {platos.map((plato) => (
+          <Col sm="12" md="6" lg="4" xl="3" className="mb-4" key={plato.id}>
+            <Card className="h-100 shadow-sm border-0">
+              <CardImg
+                top
+                width="100%"
+                src={plato.imagen || 'https://via.placeholder.com/300x200?text=Sin+Imagen'}
+                alt={plato.nombre}
+                style={{ height: '200px', objectFit: 'cover' }}
+              />
+              <CardBody className="d-flex flex-column">
+                <CardTitle tag="h5" className="fw-bold mb-3">
+                  {plato.nombre}
+                </CardTitle>
+                <CardText className="mb-1">
+                  <strong>Categoría:</strong> {plato.categoria}
+                </CardText>
+                <CardText className="mb-1">
+                  <strong>Precio:</strong> ${plato.precio}
+                </CardText>
+                <CardText className="mb-3">
+                  <strong>Stock disponible:</strong> {plato.stock}
+                </CardText>
+
+                <Button
+                  color="success"
+                  className="mt-auto fw-bold"
+                  onClick={() => handleAddPlato(plato.id)}
+                  disabled={plato.stock <= 0}
+                >
+                  {plato.stock > 0 ? 'Añadir a la reserva' : 'Agotado'}
+                </Button>
+              </CardBody>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    </Container>
   );
 };
 
