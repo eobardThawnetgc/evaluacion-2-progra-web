@@ -13,7 +13,7 @@ export const menu = [
   { id: 108, nombre: "Lasaña de Carne", precio: 6.0, stock: 0, categoria: "Fuerte" },
 ];
 
-export const tiempoLimite = 180; //Tiempo en segundos
+export const tiempoLimite = 3000; //Tiempo en segundos
 
 export const reserva = {
   saldo: 25.0, //El dinero actual por default esta a $25
@@ -21,15 +21,18 @@ export const reserva = {
   expiraEn: null, //Usare timestamp
 };
 
-const redondear = (valor) => 
+export const redondear = (valor) => 
   Math.round(valor * 100) / 100;
 
+//Retornar el plato buscado por id donde el resultado sea true, sino indefinido
 export const buscarPlato = (id) => 
   menu.find((plato) => plato.id === id);
 
+//Retornar el Item Reservado buscado por id donde el resultado sea true, sino indefinido
 export const buscarItemReservado = (id) =>
   reserva.itemsReservados.find((item) => item.id === id);
 
+//Para todos los items reservados acumula el precio y se redondea
 export const calcularTotal = () => {
   const total = reserva.itemsReservados.reduce((acumulado, item) => {
     const plato = buscarPlato(item.id);
@@ -39,10 +42,10 @@ export const calcularTotal = () => {
   return redondear(total);
 };
 
-
+//Retorna un JSON con el resumen de la reserva y estado (tiempo restante)
 export const obtenerResumenReserva = () => ({
   saldo: reserva.saldo,
-  itemsReservados: reserva.itemsReservados.map((item) => {
+  itemsReservados: reserva.itemsReservados.map((item) => { //Recorre todos los items reservados
     const plato = buscarPlato(item.id);
     return {
       id: item.id,
@@ -53,9 +56,10 @@ export const obtenerResumenReserva = () => ({
   }),
   total: calcularTotal(),
   segundosRestantes: reserva.expiraEn === null ? null : Math.max(0, Math.ceil((reserva.expiraEn - Date.now()) / 1000)),
+  //Se actualiza en cada consulta el tiempo restante
 });
 
-//Iniciara cuando se agregue el primer plato
+//Un temporizador que iniciara cuando se agregue el primer plato
 export const iniciarTemporizador = () => {
   if (reserva.expiraEn === null) {
     reserva.expiraEn = Date.now() + tiempoLimite * 1000;

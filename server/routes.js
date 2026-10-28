@@ -19,6 +19,8 @@ router.post("/guessNumber", verifySecretNumber);
 router.post("/guessNumber/reset", resetSecretNumber);
 
 //endpoints para el ejercicio 2
+//Un middleware para cualquier ruta, 
+//se ejecutara la funcion para liberar la reserva
 router.use("/api", (req, res, next) => {
   liberarSiExpiro();
   next();

@@ -17,17 +17,17 @@ export const obtenerReserva = (req, res) => {
   res.status(200).json(obtenerResumenReserva());
 };
 
-// POST /api/reserva/agregar   { platoID, cantidad }
+// POST /api/reserva/agregar   { alimentoId, cantidad }
 export const agregarAReserva = (req, res) => {
   // Acepta cualquier variante que mande el frontend para mayor compatibilidad
-  const platoID = Number(req.body.platoID || req.body.platoId || req.body.id || req.alimentoId);
-  const cantidad = Number(req.body.cantidad || 1);
+  const alimentoId = Number(req.body.platoID || req.body.platoId || req.body.id || req.body.alimentoId || req.body.alimentoID);
+  const cantidad = Number(req.body.cantidad);
 
-  if (!esEnteroPositivo(platoID) || !esEnteroPositivo(cantidad)) {
+  if (!esEnteroPositivo(alimentoId) || !esEnteroPositivo(cantidad)) {
     return res.status(400).json({ mensaje: "platoID y cantidad deben ser numeros enteros positivos" });
   }
 
-  const plato = buscarPlato(platoID);
+  const plato = buscarPlato(alimentoId);
   if (!plato) {
     return res.status(404).json({ mensaje: "El platillo no existe" });
   }
@@ -40,11 +40,11 @@ export const agregarAReserva = (req, res) => {
     return res.status(400).json({ mensaje: "Saldo insuficiente para esta cantidad" });
   }
 
-  const itemExistente = buscarItemReservado(platoID);
+  const itemExistente = buscarItemReservado(alimentoId);
   if (itemExistente) {
     itemExistente.cantidad += cantidad;
   } else {
-    reserva.itemsReservados.push({ id: platoID, cantidad });
+    reserva.itemsReservados.push({ id: alimentoId, cantidad });
   }
 
   iniciarTemporizador();
@@ -118,7 +118,7 @@ export const confirmarReserva = (req, res) => {
     return res.status(400).json({ mensaje: "Tu reserva esta vacia" });
   }
 
-  //Volver a el saldo original o el resultante si aun hay platos
+  //Actualizar los nuevos datos de la reserva
   reserva.saldo = redondear(reserva.saldo - calcularTotal());
   reserva.itemsReservados = [];
   reserva.expiraEn = null;
